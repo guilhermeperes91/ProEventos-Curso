@@ -1298,11 +1298,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\Curso\\ProEventos.API\\ProEventos.API\\ProEventos.API.csproj",
+      "projectUniqueName": "C:\\Projects\\Curso\\ProEventos.API\\ProEventos.API.csproj",
       "projectName": "ProEventos.API",
-      "projectPath": "C:\\Projects\\Curso\\ProEventos.API\\ProEventos.API\\ProEventos.API.csproj",
+      "projectPath": "C:\\Projects\\Curso\\ProEventos.API\\ProEventos.API.csproj",
       "packagesPath": "C:\\Users\\Guilherme\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\Curso\\ProEventos.API\\ProEventos.API\\obj\\",
+      "outputPath": "C:\\Projects\\Curso\\ProEventos.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Guilherme\\AppData\\Roaming\\NuGet\\NuGet.Config",
