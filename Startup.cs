@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ProEventos.API.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +20,7 @@ namespace ProEventos.API
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            Configuration = configuration; //INJEÇÃO DA CLASSE DENTRO DO PROGRAM.CS, FEITO PARA ACESSAR O APPSETINGS
         }
 
         public IConfiguration Configuration { get; }
@@ -26,7 +28,8 @@ namespace ProEventos.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContext<DataContext>( //  INJEÇÃO DE DEPENDENCIA DO DATACONTEXT
+                context => context.UseSqlite(Configuration.GetConnectionString("Default"))); //REFERENCIA AO BANCO DE DADOS, GETCONNECTION RECEBE A BASE DE DADOS POR PARAMETRO
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
