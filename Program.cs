@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ProEventos.API
 {
-    public class Program
+    public class Program //TESTE GIT
     {
         public static void Main(string[] args)
         {
