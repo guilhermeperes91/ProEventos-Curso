@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ProEventos.API.Controllers
+namespace ProEventos.API.Controllers //third-alter git
 {
     [ApiController]
     [Route("api/[controller]")]
