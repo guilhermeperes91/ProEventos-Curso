@@ -11,7 +11,7 @@ namespace ProEventos.API.Controllers //third-alter git
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EventoController : ControllerBase
+    public class EventosController : ControllerBase
     {
         /*public IEnumerable<Evento> _evento = new Evento[]{
                 new Evento(){ //criando objeto do evento, passando os parametros inseridos na classe evento
@@ -36,7 +36,7 @@ namespace ProEventos.API.Controllers //third-alter git
 
         private readonly DataContext _context;
 
-        public EventoController(DataContext context)
+        public EventosController(DataContext context)
         {
             _context = context;
         }

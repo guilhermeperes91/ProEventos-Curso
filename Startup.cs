@@ -31,6 +31,7 @@ namespace ProEventos.API
             services.AddDbContext<DataContext>( //  INJEÇÃO DE DEPENDENCIA DO DATACONTEXT
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))); //REFERENCIA AO BANCO DE DADOS, GETCONNECTION RECEBE A BASE DE DADOS POR PARAMETRO
             services.AddControllers();
+            services.AddCors(); //adicionando cors
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProEventos.API", Version = "v1" });
@@ -52,6 +53,10 @@ namespace ProEventos.API
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors(x => x.AllowAnyHeader() //autorizando as requisições do front CORS policy: No 'Access-Control-Allow-Origin' - qualquer cabeçalho
+                               .AllowAnyMethod() //qualquer metodo (get, set, post, delete)
+                               .AllowAnyOrigin()); //qualquer origem
 
             app.UseEndpoints(endpoints =>
             {
