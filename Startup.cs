@@ -1,18 +1,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using ProEventos.API.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ProEventos.Application;
+using ProEventos.Application.Contratos;
+using ProEventos.Persistence;
+using ProEventos.Persistence.Contratos;
+using ProEventos.Persistense.Contextos;
 
 namespace ProEventos.API
 {
@@ -28,9 +25,15 @@ namespace ProEventos.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>( //  INJEÇÃO DE DEPENDENCIA DO DATACONTEXT
+            services.AddDbContext<ProEventosContext>( //  INJEÇÃO DE DEPENDENCIA DO DATACONTEXT
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))); //REFERENCIA AO BANCO DE DADOS, GETCONNECTION RECEBE A BASE DE DADOS POR PARAMETRO
-            services.AddControllers();
+            services.AddControllers()
+                    .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling =
+                       Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                    );
+            services.AddScoped<IEventoService, EventoService>(); //INJÇÃO DE DEPENDENCIA DAS ITERFACES
+            services.AddScoped<IGeralPersist, GeralPersist>();
+            services.AddScoped<IEventoPersist, EventosPersist>();
             services.AddCors(); //adicionando cors
             services.AddSwaggerGen(c =>
             {

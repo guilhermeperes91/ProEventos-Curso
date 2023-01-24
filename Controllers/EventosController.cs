@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using ProEventos.API.Data;
-using ProEventos.API.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using ProEventos.Application.Contratos;
+using ProEventos.Domain;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProEventos.API.Controllers //third-alter git
@@ -13,72 +11,147 @@ namespace ProEventos.API.Controllers //third-alter git
     [Route("api/[controller]")]
     public class EventosController : ControllerBase
     {
+        private readonly IEventoService _eventoService;
+
         /*public IEnumerable<Evento> _evento = new Evento[]{
-                new Evento(){ //criando objeto do evento, passando os parametros inseridos na classe evento
-                    EventoId = 1,
-                    Tema = "Angular 11 e .NET 5",
-                    Local = "Ribeirão Preto",
-                    Lote = "1ª Lote",
-                    QtdPessoa = 250,
-                    DataEvento = DateTime.Now.AddDays(2).ToString("dd/MM/yyyy"),
-                    ImagemURL = "foto1.png"
-                },
-                new Evento(){
-                    EventoId = 2,
-                    Tema = "Angular e suas novidades",
-                    Local = "Ribeirão Preto",
-                    Lote = "2ª Lote",
-                    QtdPessoa = 350,
-                    DataEvento = DateTime.Now.AddDays(3).ToString("dd/MM/yyyy"),
-                    ImagemURL = "foto2.png"
-                }
-            };*/ // REMOVIDO PARA PEGAR AS INFORMAÇÕES DO BANCO DE DADOS AO INVES DE POPULAR O OBJETO EVENTO COM AS INFORMAÇOES CHUMBADAS
+new Evento(){ //criando objeto do evento, passando os parametros inseridos na classe evento
+EventoId = 1,
+Tema = "Angular 11 e .NET 5",
+Local = "Ribeirão Preto",
+Lote = "1ª Lote",
+QtdPessoa = 250,
+DataEvento = DateTime.Now.AddDays(2).ToString("dd/MM/yyyy"),
+ImagemURL = "foto1.png"
+},
+new Evento(){
+EventoId = 2,
+Tema = "Angular e suas novidades",
+Local = "Ribeirão Preto",
+Lote = "2ª Lote",
+QtdPessoa = 350,
+DataEvento = DateTime.Now.AddDays(3).ToString("dd/MM/yyyy"),
+ImagemURL = "foto2.png"
+}
+};*/ // REMOVIDO PARA PEGAR AS INFORMAÇÕES DO BANCO DE DADOS AO INVES DE POPULAR O OBJETO EVENTO COM AS INFORMAÇOES CHUMBADAS
 
-        private readonly DataContext _context;
-
-        public EventosController(DataContext context)
+        public EventosController(IEventoService eventoService)
         {
-            _context = context;
+            _eventoService = eventoService;
         }
 
         [HttpGet]
 
-        //public string Get() - ORIG
-        //public Evento Get() - alterado pra retornar a classe evento
-        public IEnumerable <Evento> Get() // IEnumerable utilizado para passar um array de eventos
+        public async Task<IActionResult> Get() // IEnumerable utilizado para passar um array de eventos
         {
+            //IActionResult permite retornar o status do retorno..200,404
             //return "Evento de Get"; - ORIG - Retornando uma mensagem
             //return _evento; // retornando o metodo _evento, onde tem todos os eventos LINHA 16
-            return _context.Eventos; //retornando o contexto evento que vem da database
+            //return _context.Eventos; //retornando o contexto evento que vem da database
+            try
+            {
+                var eventos = await _eventoService.GetAllEventosAsync(true);
+                if (eventos == null) return NotFound("Nenhum evento encontrado");
+
+                return Ok(eventos);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar recuperar eventos. Erro: {ex.Message}"); //$ para concatenar texto com variavel
+            }
         }
 
         [HttpGet("{id}")]
         //public IEnumerable<Evento> GetById(int id) //metodo get passando o id do evento por parametro para filtrar  
-        public Evento GetById(int id) // estava retornando com colchetes, alterado para a classe
+        public async Task<IActionResult> GetById(int id) // estava retornando com colchetes, alterado para a classe
         {
-            //return _context.Eventos.Where(evento => evento.EventoId == id); lambda expression (utilizado para funções executadas somente uma vez, representada pela seta =>
-            return _context.Eventos.FirstOrDefault( //melhor visualização do return teste
-                evento => evento.EventoId == id);
+            try
+            {
+                var evento = await _eventoService.GetEventoByIdAsync(id, true);
+                if (evento == null) return NotFound("Evento por ID não encontrado.");
+
+                return Ok(evento);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar recuperar eventos. Erro: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{tema}/tema")] //Criação de rota diferente, pois no http não reconhece o tipo de variável que esta sendo passada (string tema ou int idd)
+        //public IEnumerable<Evento> GetById(int id) //metodo get passando o id do evento por parametro para filtrar  
+        public async Task<IActionResult> GetByTema(string tema) // estava retornando com colchetes, alterado para a classe
+        {
+            try
+            {
+                var evento = await _eventoService.GetAllEventosByTemaAsync(tema, true);
+                if (evento == null) return NotFound("Eventos por tema não encontrados");
+
+                return Ok(evento);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar recuperar eventos. Erro: {ex.Message}");
+            }
         }
 
         [HttpPost]
-        public string Post()
+        public async Task<IActionResult> Post(Evento model)
         {
-            return "Exemplo de Post";
+            try
+            {
+                var evento = await _eventoService.AddEventos(model);
+                if (evento == null) return BadRequest("Erro ao tentar adicionar evento");
+
+                return Ok(evento);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar recuperar eventos. Erro: {ex.Message}");
+            }
 
         }
 
         [HttpPut("{id}")]
-        public string Put(int id)
+        public async Task<IActionResult> Put(int id, Evento model)
         {
-            return $"Exemplo de Put com id = {id}";
+            try
+            {
+                var evento = await _eventoService.UpdateEvento(id, model);
+                if (evento == null) return BadRequest("Erro ao tentar atualizar evento");
+
+                return Ok(evento);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar atualizar eventos. Erro: {ex.Message}");
+            }
 
         }
 
         [HttpDelete("{id}")]
-        public string Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return $"Exemplo de Delete com id = {id}";
+            try
+            {
+                //if (await _eventoService.DeleteEvento(id))
+                //    return Ok("Deletado");
+                //else
+                //    return BadRequest("Evento não deletado");
+                        //REFATORAÇÃO DO CODIGO//
+                return await _eventoService.DeleteEvento(id) ?
+                    Ok("Deletado") : 
+                    BadRequest("Evento não deletado");
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar deletar evento. Erro: {ex.Message}");
+            }
 
         }
     }
